@@ -1,16 +1,14 @@
-// client/src/context/AuthContext.jsx
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]); // 🔥 keep user posts here
   const [loading, setLoading] = useState(true);
 
-  // ✅ Load user if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -22,21 +20,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ Correct endpoint
   const loadUser = async () => {
     try {
       const { data } = await axios.get("/api/users/me");
-      setUser(data);
+      setUser(data.user);
+      setPosts(data.posts);
     } catch (err) {
       console.error("Error loading user:", err);
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+      logout();
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Login
   const login = async (email, password) => {
     const { data } = await axios.post("/api/auth/login", { email, password });
 
@@ -46,7 +42,6 @@ export const AuthProvider = ({ children }) => {
     await loadUser();
   };
 
-  // ✅ Register
   const register = async (userData) => {
     const { data } = await axios.post("/api/auth/register", userData);
 
@@ -56,15 +51,30 @@ export const AuthProvider = ({ children }) => {
     await loadUser();
   };
 
-  // ✅ Logout
+  // 🔥 THIS makes profile image update instantly
+  const updateUserState = (newUser) => {
+    setUser(newUser);
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
+    setPosts([]);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        posts,
+        loading,
+        login,
+        register,
+        logout,
+        updateUserState, // 🔥 expose this
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

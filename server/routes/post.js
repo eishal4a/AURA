@@ -1,4 +1,3 @@
-// server/routes/post.js
 import express from "express";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
@@ -8,36 +7,30 @@ import upload from "../middleware/upload.js";
 const router = express.Router();
 
 /*
-  CREATE POST (caption + image)
+  CREATE POST
 */
 router.post("/", auth, upload.single("image"), async(req, res) => {
     try {
         const { caption } = req.body;
 
-        // ✅ Build real image URL if file uploaded
+        const user = await User.findById(req.user.id);
+
         let imageUrl = "";
         if (req.file) {
             imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
         }
 
-        // ✅ Create post
         const post = await Post.create({
             caption: caption || "",
             image: imageUrl,
-            user: req.user.id,
+            user: user._id,
+
+            // 🔥 snapshot data (no populate needed later)
+            username: user.username,
+            userProfilePicture: user.profilePicture,
         });
 
-        // ✅ Attach post to user
-        await User.findByIdAndUpdate(req.user.id, {
-            $push: { posts: post._id },
-        });
-
-        // ✅ Return populated post
-        const populated = await Post.findById(post._id)
-            .populate("user", "username profilePicture");
-
-        res.status(201).json(populated);
-
+        res.status(201).json(post);
     } catch (err) {
         console.error("CREATE POST ERROR:", err);
         res.status(500).json({ message: err.message });
@@ -45,16 +38,12 @@ router.post("/", auth, upload.single("image"), async(req, res) => {
 });
 
 /*
-  GET ALL POSTS (FEED)
+  FEED
 */
 router.get("/", auth, async(req, res) => {
     try {
-        const posts = await Post.find()
-            .populate("user", "username profilePicture")
-            .sort({ createdAt: -1 });
-
+        const posts = await Post.find().sort({ createdAt: -1 });
         res.json(posts);
-
     } catch (err) {
         console.error("GET POSTS ERROR:", err);
         res.status(500).json({ message: err.message });
