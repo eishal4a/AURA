@@ -17,17 +17,25 @@ const Profile = () => {
   }, []);
 
   const saveProfile = async () => {
-    try {
-      const res = await API.put("/users/update", {
-        bio,
-        profilePicture,
-      });
-      setUser(res.data);
-      setEditing(false);
-    } catch (err) {
-      console.log(err);
+  try {
+    const formData = new FormData();
+    formData.append("bio", bio);
+
+    if (profilePicture) {
+      formData.append("image", profilePicture);
     }
-  };
+
+    const res = await API.put("/users/update", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setUser(res.data);
+    setEditing(false);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 
   if (!user) return null;
 
@@ -47,12 +55,12 @@ const Profile = () => {
 
             {editing ? (
               <>
-                <input
-                  value={profilePicture}
-                  onChange={(e) => setProfilePicture(e.target.value)}
-                  className="input-field mb-3"
-                  placeholder="Profile image URL"
-                />
+              <input
+  type="file"
+  onChange={(e) => setProfilePicture(e.target.files[0])}
+  className="mb-3"
+/>
+
 
                 <textarea
                   value={bio}
@@ -63,6 +71,7 @@ const Profile = () => {
 
                 <button onClick={saveProfile} className="btn-primary">
                   Save
+                  
                 </button>
               </>
             ) : (

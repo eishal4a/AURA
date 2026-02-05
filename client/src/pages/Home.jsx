@@ -6,6 +6,7 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState(null);
+const [selectedFile, setSelectedFile] = useState(null);
 
   const fetchPosts = () => {
     API.get("/posts")
@@ -73,6 +74,7 @@ const Home = () => {
                 className="input-field flex-1"
               />
             </div>
+
 
             <div className="flex items-center justify-between">
               <label className="text-pink-500 cursor-pointer">
