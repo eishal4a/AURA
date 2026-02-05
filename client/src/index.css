@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== GLOBAL AURA THEME (Neon Pink on Black) ===== */
+
+body {
+    @apply bg-[#0b0b0f] text-white;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+
+/* Subtle glow background like the reference */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(255, 0, 150, 0.15), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255, 0, 150, 0.12), transparent 40%);
+    z-index: -1;
+}
+
+
+/* Glass card */
+
+.glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 0, 150, 0.2);
+    border-radius: 24px;
+}
+
+
+/* Inputs like the design */
+
+.input-field {
+    @apply w-full px-5 py-4 rounded-2xl text-white outline-none transition-all duration-300;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 0, 150, 0.25);
+}
+
+.input-field:focus {
+    border: 1px solid #ff0096;
+    box-shadow: 0 0 0 3px rgba(255, 0, 150, 0.25);
+}
+
+
+/* Primary Neon Button */
+
+.btn-primary {
+    @apply w-full py-4 rounded-2xl font-semibold text-white transition-all duration-300;
+    background: linear-gradient(90deg, #ff0096, #ff3cac);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 0, 150, 0.4);
+}
+
+.btn-primary:active {
+    transform: scale(0.96);
+}
+
+
+/* Secondary OAuth buttons */
+
+.btn-oauth {
+    @apply w-full py-3 rounded-2xl text-white transition-all duration-300;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-oauth:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
