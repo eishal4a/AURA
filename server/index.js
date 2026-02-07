@@ -28,16 +28,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes); // login, register
 app.use("/api/users", userRoutes); // /me, profile
 app.use("/api/posts", postRoutes); // posts
-// Serve frontend
-const __filename = fileURLToPath(
-    import.meta.url);
-const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, "../client/dist")));
-
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-});
 
 // MongoDB
 mongoose
@@ -55,4 +46,17 @@ server.on("error", (err) => {
         console.log(`Port ${PORT} already in use. Kill old process and restart.`);
         process.exit(1);
     }
+});
+console.log("Mongo URI:", process.env.MONGO_URI);
+
+
+// Serve frontend
+const __filename = fileURLToPath(
+    import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
