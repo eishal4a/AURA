@@ -12,7 +12,7 @@ const Profile = () => {
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState("");
 
-  // ✅ Load posts + set initial bio & image
+  // Load posts + set initial bio & image
   useEffect(() => {
     if (user) {
       setBio(user.bio || "");
@@ -24,36 +24,39 @@ const Profile = () => {
     });
   }, [user]);
 
-  // ✅ Image preview
+  // Image preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  // ✅ Save profile
-const saveProfile = async () => {
-  try {
-    const formData = new FormData();
-    formData.append("bio", bio);
-    if (imageFile) formData.append("image", imageFile);
+  // Save profile (fixed but same logic)
+  const saveProfile = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("bio", bio);
+      if (imageFile) formData.append("image", imageFile);
 
-    const res = await API.put("/users/update", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+     await API.put("/posts/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    // ✅ Update context user
-    updateUserState(res.data);
+      // Fetch updated user so UI refreshes
+      const updatedUser = await API.get("/users/me");
 
-    // ✅ Update preview & bio locally
-    setPreview(res.data.profilePicture);
-    setBio(res.data.bio || "");
+      updateUserState(updatedUser.data.user);
+setPreview(updatedUser.data.user.profilePicture || "");
+setBio(updatedUser.data.user.bio || "");
 
-    setEditing(false);
-  } catch (err) {
-    console.log(err);
-  }
-};
+      setEditing(false);
+    } catch (err) {
+      console.log(err);
+    }
+    const updatedUser = await API.get("/users/me");
+console.log("USER FROM /users/me:", updatedUser.data);
+
+  };
 
   if (!user) return null;
 
@@ -67,13 +70,13 @@ const saveProfile = async () => {
           {/* PROFILE HEADER */}
           <div className="glass p-8 text-center mb-10">
             <img
-  src={
-    preview && !preview.includes("undefined")
-      ? preview
-      : "https://via.placeholder.com/150"
-  }
-  className="w-28 h-28 rounded-full mx-auto mb-4 object-cover"
-/>
+              src={
+                preview && !preview.includes("undefined")
+                  ? preview
+                  : "https://via.placeholder.com/150"
+              }
+              className="w-28 h-28 rounded-full mx-auto mb-4 object-cover"
+            />
 
             {editing ? (
               <>
@@ -97,7 +100,7 @@ const saveProfile = async () => {
             ) : (
               <>
                 <h2 className="text-2xl font-bold">{user.username}</h2>
-                <p className="text-white/40">{user.bio}</p>
+                <p className="text-white/40">{user.bio || "No bio yet"}</p>
 
                 <button
                   onClick={() => setEditing(true)}
