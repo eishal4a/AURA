@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 const postSchema = new mongoose.Schema({
     image: String,
     caption: String,
@@ -9,14 +8,30 @@ const postSchema = new mongoose.Schema({
         ref: "User",
     },
 
-    // 🔥 Instagram trick
     username: String,
     userProfilePicture: String,
 
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-});
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
+
+    comments: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+        username: String,
+        userProfilePicture: String,
+        text: String,
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+    }],
+
+
+}, { timestamps: true });
+
 
 export default mongoose.model("Post", postSchema);
