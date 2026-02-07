@@ -13,7 +13,7 @@ const [openComments, setOpenComments] = useState(null);
 
   const fetchPosts = () => {
     API.get("/posts")
-      .then(res => setPosts(res.data))
+     .then(res => setPosts(res.data.posts || res.data))
       .catch(err => console.log(err));
   };
 
@@ -120,7 +120,7 @@ const tempPost = {
               No posts yet. Be the first to post on AURA ✨
             </div>
           ) : (
-            posts.map(post => (
+          (Array.isArray(posts) ? posts : []).map(post => (
               <div key={post._id} className="glass p-6">
                 <div className="flex items-center gap-3 mb-3">
                  <img src={post.userProfilePicture} />
@@ -139,7 +139,8 @@ const tempPost = {
 
                 <div className="text-white/50 flex gap-4">
   <button onClick={() => handleLike(post._id)}>
-    ❤️ {post.likes.length}
+   ❤️ {post.likes?.length || 0}
+
   </button>
 
   <button
@@ -147,7 +148,10 @@ const tempPost = {
     setOpenComments(openComments === post._id ? null : post._id)
   }
 >
-  💬 {post.comments.length}
+ 
+💬 {post.comments?.length || 0}
+
+
 </button>
 
 
