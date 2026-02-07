@@ -38,6 +38,10 @@ app.use("/api/users", userRoutes);
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.get("*", (req, res) => {
+    if (req.originalUrl.startsWith("/api")) {
+        return res.status(404).json({ message: "API route not found" });
+    }
+
     res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
