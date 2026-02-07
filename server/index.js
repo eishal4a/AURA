@@ -11,6 +11,11 @@ import postRoutes from "./routes/post.js";
 
 dotenv.config();
 
+// Serve frontend
+const __filename = fileURLToPath(
+    import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -24,10 +29,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-// Routes
-app.use("/api/auth", authRoutes); // login, register
-app.use("/api/users", userRoutes); // /me, profile
-app.use("/api/posts", postRoutes); // posts
+// API routes FIRST
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/users", userRoutes);
+
+// THEN serve frontend
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
 
 
 // MongoDB
@@ -48,15 +60,3 @@ server.on("error", (err) => {
     }
 });
 console.log("Mongo URI:", process.env.MONGO_URI);
-
-
-// Serve frontend
-const __filename = fileURLToPath(
-    import.meta.url);
-const __dirname = path.dirname(__filename);
-
-app.use(express.static(path.join(__dirname, "../client/dist")));
-
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-});

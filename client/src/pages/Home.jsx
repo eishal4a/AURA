@@ -164,7 +164,7 @@ const tempPost = {
   Delete
 </button>
 <div className="space-y-2 max-h-40 overflow-y-auto">
-  {post.comments.map((c) => (
+ {post.comments?.map((c) => (
     <div key={c._id} className="flex items-center justify-between text-sm text-white/80">
 
       <div className="flex items-center gap-2">
