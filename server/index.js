@@ -3,7 +3,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
 import postRoutes from "./routes/post.js";
@@ -27,6 +28,16 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes); // login, register
 app.use("/api/users", userRoutes); // /me, profile
 app.use("/api/posts", postRoutes); // posts
+// Serve frontend
+const __filename = fileURLToPath(
+    import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
 
 // MongoDB
 mongoose
