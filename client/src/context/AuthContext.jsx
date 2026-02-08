@@ -1,29 +1,31 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import API from "../api";
+import API from "../api/axios";
+
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]); // 🔥 keep user posts here
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Load user on startup if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       loadUser();
     } else {
       setLoading(false);
     }
   }, []);
 
+  // Load current user
   const loadUser = async () => {
     try {
-     const { data } = await API.get("/users/me");
-
+      const { data } = await API.get("/users/me");
       setUser(data.user);
       setPosts(data.posts);
     } catch (err) {
@@ -34,34 +36,35 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Login
   const login = async (email, password) => {
-   const { data } = await API.post("/auth/login", { email, password });
-
+    const { data } = await API.post("/auth/login", { email, password });
 
     localStorage.setItem("token", data.token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+    API.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
     await loadUser();
   };
 
+  // Register
   const register = async (userData) => {
     const { data } = await API.post("/auth/register", userData);
 
-
     localStorage.setItem("token", data.token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+    API.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
     await loadUser();
   };
 
-  // 🔥 THIS makes profile image update instantly
+  // Update user state (for profile updates)
   const updateUserState = (newUser) => {
     setUser(newUser);
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
+    delete API.defaults.headers.common["Authorization"];
     setUser(null);
     setPosts([]);
   };
@@ -75,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        updateUserState, // 🔥 expose this
+        updateUserState,
       }}
     >
       {children}
